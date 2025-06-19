@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Run hello smoke-test
+        run: |
+          source .venv/bin/activate
+          python -m assist.main hello --name CI
+
+      - name: Run heatmap smoke-test
+        run: |
+          source .venv/bin/activate
+          python -m assist.main heatmap --help
+
+      - name: Run chat smoke-test
+        run: |
+          source .venv/bin/activate
+          python -m assist.main chat
