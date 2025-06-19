@@ -1,9 +1,9 @@
 # assist/chat.py
-from pathlib import Path
 
-def chat(repo: Path = Path(".")) -> str:
+def chat(question: str) -> str:
     """
-    Chat plugin stub.
-    Later: integrate embeddings to answer questions on the repo.
+    Chat plugin stub: echoes back what you asked.
     """
-    return "Chat plugin stub: work in progress!"
+    if not question.strip():
+        return "Please enter a question above."
+    return f"Chat plugin stub received: “{question}”"

@@ -1,10 +1,13 @@
 import streamlit as st
-from pathlib import Path
 from assist.chat import chat as chat_plugin
 
 st.title("RepoSage Chatbot Demo")
 
-repo_input = st.text_input("Path to your repo:", ".")
+# 1) Change the label to make it obvious we're asking a question
+question = st.text_input("Ask RepoSage a question:", "")
+
+# 2) Only run when clicked
 if st.button("Ask RepoSage"):
-    result = chat_plugin(Path(repo_input))
-    st.write(result)
+    # 3) Pass that question into your stub
+    response = chat_plugin(question)
+    st.write(response)
