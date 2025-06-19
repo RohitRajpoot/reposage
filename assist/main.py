@@ -1,10 +1,7 @@
 import typer
 from rich import print
-from pathlib import Path
-
-# Import and alias the stub so it doesn't collide with our CLI function
-from .chat import chat as chat_plugin
 from .heatmap import show_heatmap
+from .chat import chat as chat_plugin
 
 app = typer.Typer(help="RepoSage Synth CLI")
 
@@ -19,10 +16,9 @@ def heatmap():
     show_heatmap()
 
 @app.command()
-def chat(repo: Path = Path(".")):
+def chat(question: str = typer.Argument(..., help="Question to ask RepoSage")):
     """Invoke the chat plugin stub."""
-    # Call the aliased stub, not this function
-    response = chat_plugin(repo)
+    response = chat_plugin(question)
     print(response)
 
 if __name__ == "__main__":
