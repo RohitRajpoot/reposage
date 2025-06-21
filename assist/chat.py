@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Load once at import time
-WEIGHTS = torch.load("tensor.pt").numpy()   # shape: (V, D)
+WEIGHTS = torch.load("tensor.pt").detach().numpy()   # shape: (V, D)
 with open("vocab.json", "r") as f:
     TOKEN2IDX = json.load(f)
 # Build reverse map: idx (as int) → token (str)
