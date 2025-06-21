@@ -22,5 +22,11 @@ def chat(question: str = typer.Argument(..., help="Question to ask RepoSage")):
     response = chat_plugin(question)
     print(response)
 
+@app.command()
+def bayes(question: str = typer.Argument(..., help="Question for Bayesian chat")):
+    """Invoke the Bayesian-embedding chat."""
+    from .bayes_chat import bayes_chat
+    print(bayes_chat(question))
+
 if __name__ == "__main__":
     app()

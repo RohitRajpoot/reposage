@@ -6,8 +6,11 @@ st.title("RepoSage Chatbot Demo")
 # 1) Change the label to make it obvious we're asking a question
 question = st.text_input("Ask RepoSage a question:", "")
 
-# 2) Only run when clicked
-if st.button("Ask RepoSage"):
-    # 3) Pass that question into your stub
-    response = chat_plugin(question)
-    st.write(response)
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Ask Embedding RepoSage"):
+        st.write(embed_chat(question))
+
+with col2:
+    if st.button("Ask Bayesian RepoSage"):
+        st.write(bayes_chat(question))
