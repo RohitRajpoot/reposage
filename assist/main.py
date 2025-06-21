@@ -28,5 +28,11 @@ def bayes(question: str = typer.Argument(..., help="Question for Bayesian chat")
     from .bayes_chat import bayes_chat
     print(bayes_chat(question))
 
+@app.command()
+def transform(prompt: str = typer.Argument(..., help="Prompt for transformer demo")):
+    """Invoke the single‐block transformer next-token demo."""
+    from .transformer_demo import transformer_next
+    print(transformer_next(prompt))
+
 if __name__ == "__main__":
     app()
