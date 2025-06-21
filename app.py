@@ -27,13 +27,27 @@ question = st.text_input("Enter your question or prompt below:")
 # Four buttons side by side, with DeepSeek first
 col1, col2, col3, col4 = st.columns(4)
 
+math_prefix = (
+    "You are an expert math tutor.  Compute the derivative of f(x) = x^2·sin(x) "
+    "step by step using the product rule.  Show each line of work."
+)
+
 with col1:
-    if st.button("DeepSeek-R1 Demo"):
+    if st.button("DeepSeek-R1 Math Demo"):
         if not question.strip():
             st.warning("Please enter a prompt first.")
         else:
-            with st.spinner("Generating with DeepSeek…"):
-                out = deepseek_gen(question, max_new_tokens=100, do_sample=True)
+            # 1) Build the full math prompt
+            prompt = f"{math_prefix}\n\nf(x) = {question}\n\nSolution:\n"
+            # 2) Call the model deterministically
+            with st.spinner("Working it out…"):
+                out = deepseek_gen(
+                    prompt,
+                    max_new_tokens=80,
+                    do_sample=False,      # no random sampling
+                    temperature=0.0       # fully deterministic
+                )
+            # 3) Display the clean, step-by-step answer
             st.code(out[0]["generated_text"], language="text")
 
 with col2:
