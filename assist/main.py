@@ -1,6 +1,5 @@
 import typer
 from rich import print
-from .heatmap import show_heatmap
 from .chat import chat as chat_plugin
 
 app = typer.Typer(help="RepoSage Synth CLI")
@@ -13,11 +12,13 @@ def hello(name: str = "world"):
 @app.command()
 def heatmap():
     """Show token-similarity heatmap from tensor.pt."""
+    # import here so chat() doesn’t drag in sklearn
+    from .heatmap import show_heatmap
     show_heatmap()
 
 @app.command()
 def chat(question: str = typer.Argument(..., help="Question to ask RepoSage")):
-    """Invoke the chat plugin stub."""
+    """Invoke the embedding Q&A."""
     response = chat_plugin(question)
     print(response)
 
