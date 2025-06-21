@@ -1,0 +1,10 @@
+﻿RepoSage is an AI-powered study assistant designed to guide students through difficult concepts across STEM and the humanities. It combines natural-language dialogue with exact computation, adaptive memory, and interactive review prompts to create a seamless learning experience. Students ask questions in plain English—whether “How do I integrate x² sin x dx?” or “Compare Keynes and Hayek on inflation policy”—and RepoSage delivers step-by-step solutions, plots, or well-sourced explanations.
+
+
+Under the hood, RepoSage uses word embeddings to convert each token in a student’s question into a dense vector representation. These embeddings capture semantic relationships, so words like “integrate” and “differentiate” lie near each other in the vector space. A Bayesian co-occurrence layer further refines these vectors by analyzing how often terms appear together in a training corpus of lecture notes and textbook excerpts. This hybrid approach of deterministic computation and probabilistic modeling ensures both precision and flexibility in responses.
+
+
+The core AI runs in a Docker container, with a CI/CD pipeline managed by GitHub Actions. Every push to the repository triggers automated tests—checking that notebooks execute and that API calls return expected shapes—before rebuilding the container and deploying it to Hugging Face Spaces. This workflow guarantees that the live demo is always up-to-date, reproducible, and accessible via a public URL. Students and instructors can trust that the tool reflects the latest code and data without manual intervention.
+
+
+RepoSage also maintains a per-student memory vault: a collection of mastery milestones and embedding vectors that track which topics a student has practiced and where they made errors. Based on spacing-algorithm principles, it periodically prompts learners with quick review questions tailored to their individual needs. By merging state-of-the-art AI techniques with a robust engineering pipeline, RepoSage delivers a continuously evolving, always-available tutor that helps students build confidence and achieve mastery faster.
