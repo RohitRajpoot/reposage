@@ -36,4 +36,4 @@ jobs:
       - name: Run chat smoke-test
         run: |
           source .venv/bin/activate
-          python -m assist.main chat
+          python -m assist.main chat "hello world"
