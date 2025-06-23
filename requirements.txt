@@ -1,5 +1,5 @@
 numpy==1.24.4
-scikit-learn==1.6.3
+scikit-learn==1.6.1
 rich==13.3.4
 streamlit==1.46.0
 transformers
