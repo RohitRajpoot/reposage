@@ -1,8 +1,14 @@
+# assist/transformer_demo.py
+
+import json
 import torch
 import torch.nn as nn
-import numpy as np
-from .chat import TOKEN2IDX, IDX2TOKEN  # reuse your vocab maps
-from .chat import WEIGHTS              # reuse your embedding weights
+
+# placeholders for lazy loading
+_WEIGHTS: torch.Tensor | None     = None
+_TOKEN2IDX: dict[str,int] | None  = None
+_IDX2TOKEN: dict[int,str] | None  = None
+_BLOCK: nn.Module | None          = None
 
 class SingleTransformerBlock(nn.Module):
     def __init__(self, embed_dim, num_heads=2):
@@ -25,26 +31,43 @@ class SingleTransformerBlock(nn.Module):
         x = self.norm2(x + ff_out)
         return x
 
-# Instantiate once
-_EMB = torch.tensor(WEIGHTS, dtype=torch.float32)              # V×D
-_block = SingleTransformerBlock(embed_dim=_EMB.size(1), num_heads=2)
-
 def transformer_next(prompt: str) -> str:
     """
-    Given a prompt, tokenize it, embed each token, run through one
-    transformer block, then use the last position’s output vector
-    to pick the nearest vocab token as the “next token.”
+    Given a prompt string:
+      1. lazy-load tensor.pt (V×D) and vocab.json,
+      2. tokenize by whitespace → indices,
+      3. embed → run through one transformer block,
+      4. use last position’s output to pick the nearest vocab token.
     """
+    global _WEIGHTS, _TOKEN2IDX, _IDX2TOKEN, _BLOCK
+
+    # 1) Lazy-load assets
+    if _WEIGHTS is None:
+        _WEIGHTS = torch.load("tensor.pt").detach().cpu()  # shape: V×D
+        with open("vocab.json", "r") as f:
+            _TOKEN2IDX = json.load(f)
+        _IDX2TOKEN = {int(i): w for w, i in _TOKEN2IDX.items()}
+        # build the transformer block
+        _BLOCK = SingleTransformerBlock(embed_dim=_WEIGHTS.size(1), num_heads=2)
+
+    # 2) Tokenize + map to indices
     tokens = prompt.lower().split()
-    idxs = [TOKEN2IDX[t] for t in tokens if t in TOKEN2IDX]
+    idxs   = [ _TOKEN2IDX[t] for t in tokens if t in _TOKEN2IDX ]
     if not idxs:
         return "🤔 No known tokens to predict from."
-    # Build batch: 1×seq_len×D
-    x = _EMB[idxs].unsqueeze(0)
-    # Forward pass
-    out = _block(x)              # 1×seq_len×D
-    last = out[0, -1].unsqueeze(0)  # 1×D
-    # Cosine similarity against all embeddings
-    sims = nn.functional.cosine_similarity(last, _EMB)
-    best = int(torch.argmax(sims))
-    return f"🔮 Next‐token prediction: **{IDX2TOKEN[best]}**"
+
+    # 3) Prepare input (1 × seq_len × D)
+    x = _WEIGHTS[idxs].unsqueeze(0)
+
+    # 4) Forward pass through one transformer block
+    out = _BLOCK(x)  # shape: 1 × seq_len × D
+
+    # 5) Take the last position’s vector → 1×D
+    last = out[0, -1].unsqueeze(0)
+
+    # 6) Cosine similarity with all embeddings
+    sims   = nn.functional.cosine_similarity(last, _WEIGHTS)
+    best_i = int(torch.argmax(sims))
+
+    # 7) Return the predicted next token
+    return f"🔮 Next‐token prediction: **{_IDX2TOKEN[best_i]}**"
