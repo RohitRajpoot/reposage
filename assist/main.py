@@ -13,8 +13,8 @@ def hello(name: str = "world"):
 def heatmap():
     """Show token-similarity heatmap from tensor.pt."""
     # import here so chat() doesn’t drag in sklearn
-    from .heatmap import show_heatmap
-    show_heatmap()
+    from .heatmap import get_heatmap_figure
+    get_heatmap_figure()
 
 @app.command()
 def chat(question: str = typer.Argument(..., help="Question to ask RepoSage")):

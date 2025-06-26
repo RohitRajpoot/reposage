@@ -13,3 +13,4 @@ def get_heatmap_figure(tensor_path="tensor.pt"):
     fig.colorbar(cax, ax=ax)
     ax.set_title("Token Similarity Heatmap")
     return fig
+get_heatmap_figure()
