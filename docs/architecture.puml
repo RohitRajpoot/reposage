@@ -1,0 +1,20 @@
+@startuml
+actor User
+participant CLI
+participant DeepSeek
+participant BayesianQA
+participant Transformer
+participant HFSpaces
+
+User -> CLI: query(question)
+CLI -> DeepSeek: embed & retrieve top_k
+DeepSeek -> CLI: docs + embeddings
+CLI -> BayesianQA: compute posterior
+BayesianQA -> CLI: best_answer + confidence
+alt confidence < threshold
+  CLI -> Transformer: generate(question)
+  Transformer -> CLI: generated_answer
+end
+CLI -> HFSpaces: (optionally log or deploy)
+CLI -> User: return answer
+@enduml
