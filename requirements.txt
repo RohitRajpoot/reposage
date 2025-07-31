@@ -7,3 +7,5 @@ torch
 matplotlib==3.10.3
 typer==0.16.0
 sentence-transformers
+faiss-cpu
+scipy
