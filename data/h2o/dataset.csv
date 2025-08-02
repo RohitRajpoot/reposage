@@ -1,0 +1,149 @@
+text,label
+"# team_sync.txt
+
+Rohit: Welcome everyone. Let’s go through our current progress.
+
+Kishan: I’ve finished embedding the new lecture slides and readings. The index now contains fifty documents.
+
+Maitri: I’ve implemented the Bayesian scoring with normalized likelihoods and observed average confidence around sixty-five percent.
+
+Rohit: Good. How is the transformer fallback coming along?
+
+Kishan: The CLI now supports a `--fallback` flag and correctly invokes the text2text pipeline for low-confidence queries.
+
+Maitri: I tested fallback responses on sample questions; quality seems acceptable but we might need to tune the prompt.
+
+Rohit: Let’s note that. Any blockers?
+
+Kishan: No blockers. I need to refactor the indexing code to support incremental updates.
+
+Maitri: I want to update the covariance prior calculation to reduce false positives.
+
+Rohit: Great. Action items are clear. We’ll re-index before the next review.",transcripts
+"Rohit (PM): Welcome to our RepoSage kickoff for AML3304. Let’s align on scope, roles, and deliverables.
+Kishan (Developer): I’ll own the DeepSeek index module—embedding slides, readings, and transcripts.
+Maitri (AI Lead): I’ll handle the Bayesian Q&A layer and set up our priors and likelihood functions.
+Rohit: Milestone 1 is to have our GitHub Issues board and Project board live. Milestone 2 is to deliver a basic index plus the Q&A flow.
+All: Agreed.
+Rohit: Let’s reconvene for our first review soon.",transcripts
+"# team_sync_summary.txt
+
+- **Key decisions made:**
+  - Adopt a weekly re-index schedule for all new materials
+  - Set the Bayesian posterior threshold to 0.3 for fallback
+  - Use the transformer fallback for any query below the confidence threshold
+
+- **Assigned action items:**
+  - Kishan: Refactor DeepSeek indexing to support incremental updates
+  - Maitri: Tune Bayesian priors and optimize the fallback prompt
+  - Rohit: Update the CLI documentation to reflect new flags
+
+- **Open risks or questions:**
+  - Potential data drift when source materials change frequently
+  - Latency in the transformer fallback pipeline affecting response time
+
+- **Next steps:**
+  - Complete the refactoring and priors tuning before the next sync
+  - Prepare an end-of-week demo of the updated Q&A flow",transcripts
+"Rohit: Let’s review the initial index output. Kishan, which file types have you ingested?
+Kishan: I’ve indexed PDFs and text files; we’re using a 768-dimensional embedding model. Retrieval recall on a test query (“what is DeepSeek?”) is around 78%.
+Maitri: For the Bayesian Q&A layer, we should normalize cosine similarities into likelihoods—let’s apply a softmax over the top-5 snippets.
+Rohit: The CLI scaffold now supports index and query. Next step will be adding config and fleshing out error handling.
+Rohit: Potential risks: materials may change and cause data drift, so we need a weekly re-index strategy; and our fallback transformer prompt needs to be crystal clear.
+All: Sounds good.
+Rohit: We’ll do our next review after those updates are in place.",transcripts
+"import numpy as np
+import pickle
+from scipy.special import softmax
+
+# Load metadata & index
+with open(""./data/deepseek_meta.pkl"", ""rb"") as f:
+    docs = pickle.load(f)
+index = faiss.read_index(""./data/deepseek.index"")
+
+def bayesian_answer(question_embedding, top_k=5, prior=0.2):
+    # Retrieve top_k docs
+    D, I = index.search(question_embedding, top_k)
+    sims = D.flatten()
+    # Convert distances→similarities and apply softmax
+    likelihoods = softmax(sims)
+    posteriors = prior * likelihoods / (prior * likelihoods + (1-prior)*(1-likelihoods))
+    best = np.argmax(posteriors)
+    fname, text = docs[I.flatten()[best]]
+    return fname, text, posteriors[best]
+
+# Example usage
+if __name__ == ""__main__"":
+    from sentence_transformers import SentenceTransformer
+    model = SentenceTransformer(""all-MiniLM-L6-v2"")
+    q = ""What is DeepSeek?""
+    emb = model.encode([q]).astype(""float32"")
+    fname, ans, conf = bayesian_qa(emb)
+    print(f""Answer from {fname} (conf={conf:.2f}):\n{ans[:200]}…"")",code_snippets
+"import os
+from sentence_transformers import SentenceTransformer
+import faiss
+import pickle
+
+MODEL_NAME = ""all-MiniLM-L6-v2""
+DATA_DIR = ""./assets/slides""
+INDEX_PATH = ""./data/deepseek.index""
+METADATA_PATH = ""./data/deepseek_meta.pkl""
+
+def build_index():
+    model = SentenceTransformer(MODEL_NAME)
+    docs, embeddings = [], []
+    for fname in os.listdir(DATA_DIR):
+        path = os.path.join(DATA_DIR, fname)
+        with open(path, ""rb"") as f:
+            text = f.read().decode(""utf-8"", errors=""ignore"")
+        docs.append((fname, text))
+        embeddings.append(model.encode(text))
+    embeddings = np.vstack(embeddings).astype(""float32"")
+    index = faiss.IndexFlatL2(embeddings.shape[1])
+    index.add(embeddings)
+    faiss.write_index(index, INDEX_PATH)
+    with open(METADATA_PATH, ""wb"") as f:
+        pickle.dump(docs, f)
+    print(f""Indexed {len(docs)} documents to {INDEX_PATH}"")
+
+if __name__ == ""__main__"":
+    build_index()",code_snippets
+"import numpy as np
+import pickle
+from scipy.special import softmax
+
+# Load metadata & index
+with open(""./data/deepseek_meta.pkl"", ""rb"") as f:
+    docs = pickle.load(f)
+index = faiss.read_index(""./data/deepseek.index"")
+
+def bayesian_answer(question_embedding, top_k=5, prior=0.2):
+    # Retrieve top_k docs
+    D, I = index.search(question_embedding, top_k)
+    sims = D.flatten()
+    # Convert distances→similarities and apply softmax
+    likelihoods = softmax(sims)
+    posteriors = prior * likelihoods / (prior * likelihoods + (1-prior)*(1-likelihoods))
+    best = np.argmax(posteriors)
+    fname, text = docs[I.flatten()[best]]
+    return fname, text, posteriors[best]
+
+# Example usage
+if __name__ == ""__main__"":
+    from sentence_transformers import SentenceTransformer
+    model = SentenceTransformer(""all-MiniLM-L6-v2"")
+    q = ""What is DeepSeek?""
+    emb = model.encode([q]).astype(""float32"")
+    fname, ans, conf = bayesian_qa(emb)
+    print(f""Answer from {fname} (conf={conf:.2f}):\n{ans[:200]}…"")",code_snippets
+"AURA Incubator Methodology
+Assess: Identify problem space, market fit, and technical feasibility.
+Understand: Conduct user research, gather requirements, align with stakeholders.
+Refine: Prototype rapidly, integrate AI tools, collect feedback.
+Accelerate: Deploy MVP, measure key metrics, iterate on performance.",readings
+"Case Study: AI Tutor Platform
+A leading ed-tech company built an AI tutor that delivered personalized math exercises.
+Challenge: Low student engagement due to one-size-fits-all content.
+Solution: Semantic retrieval of lesson materials with vector embeddings, then dynamic Q&A.
+Outcome: 35% improvement in learning retention; deployed via a web portal with nightly data sync.",readings

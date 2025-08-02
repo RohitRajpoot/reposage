@@ -1,0 +1,7 @@
+index:
+  model: all-MiniLM-L6-v2
+  top_k: 5
+
+qa:
+  threshold: 0.3
+  fallback_model: google/flan-t5-small
