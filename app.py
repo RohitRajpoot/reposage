@@ -1,4 +1,17 @@
 # app.py
+#!/usr/bin/env python3
+# app.py
+
+import os, sys
+
+
+# Bootstrap step: rebuild FAISS index on the Space if it doesn’t exist yet
+if not os.path.exists("data/deepseek.index"):
+    os.makedirs("data", exist_ok=True)
+    ret = os.system("python scripts/build_index.py")
+    if ret != 0:
+        sys.stderr.write("❌ ERROR: scripts/build_index.py failed, aborting.\n")
+        sys.exit(1)
 
 import streamlit as st
 import h2o
