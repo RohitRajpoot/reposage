@@ -10,7 +10,7 @@ def main():
     h2o.init(max_mem_size="4G")
 
     # 2. Load your full dataset
-    pdf = pd.read_csv("data/h2o/dataset.csv")
+    pdf = pd.read_csv("data/classification_balanced.csv")
     print(f"Loaded {len(pdf)} rows from dataset.csv")
 
     # 3. Compute embeddings with SentenceTransformers

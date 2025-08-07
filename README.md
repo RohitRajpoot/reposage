@@ -4,7 +4,7 @@ This repository contains the core components of **RepoSage**, a hybrid AI-powere
 
 ---
 
-## 🔄 Hybrid Pipeline Overview
+# 🔄 Hybrid Pipeline Overview
 
 1. **Corpus Preparation**
 
@@ -34,7 +34,7 @@ This repository contains the core components of **RepoSage**, a hybrid AI-powere
 
 ---
 
-## 🚀 Getting Started
+# 🚀 Getting Started
 
 ### 1. Prepare the Corpus
 
@@ -78,7 +78,7 @@ streamlit run app.py
 
 ---
 
-## 🔧 Directory Structure
+# 🔧 Directory Structure
 
 ```
 ├─ data/
@@ -97,7 +97,7 @@ streamlit run app.py
 
 ---
 
-## 🛠️ Next Steps
+# 🛠️ Next Steps
 
 1. Label paragraphs in `data/classification.csv`.
 2. Train or fine-tune the H2O classifier (`scripts/train_classifier.py`).
@@ -105,7 +105,7 @@ streamlit run app.py
 
 ---
 
-## 🤝 Contributing
+# 🤝 Contributing
 
 1. Fork and create a feature branch.
 2. Add or update scripts/tests as needed.
@@ -114,6 +114,6 @@ streamlit run app.py
 
 ---
 
-## 📜 License
+# 📜 License
 
 Licensed under MIT. See [LICENSE](LICENSE) for details.
