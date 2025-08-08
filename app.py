@@ -32,6 +32,8 @@ TOP_K          = cfg["index"]["top_k"]
 THRESHOLD_DEF  = cfg["qa"]["threshold"]
 FALLBACK_MODEL = cfg["qa"]["fallback_model"]
 
+
+
 # --- 2. Initialize models & data ---
 
 @st.cache_resource
@@ -68,8 +70,31 @@ fallback  = load_fallback_pipeline()
 def classify_query(query: str):
     q = query.lower()
     # Rule-based override:
-    if "install" in q or "pip install" in q:
-        return "installation", 1.0
+    if "installation" in q or "pip install" in q:
+        """
+### 📦 Installation Instructions
+
+1) **Clone**
+```bash
+git clone https://github.com/rohitrajpoot/reposage.git
+cd reposage"""
+    elif "usage" in q:
+        """
+        ### ⚙️ Usage Instructions
+
+        1) **Open** the app (local `http://localhost:8501` or your Space URL).  
+        2) **Type your question** about the README (e.g., *"How do I install?"*, *"Pipeline overview?"*).  
+        3) **(Optional)** Adjust the *Top-K passages* slider for broader/narrower search.  
+        4) **Submit** (press Enter).  
+        5) **Read the answer**:
+           - If confidence is high, you’ll see an exact snippet from the docs.
+           - If low, the fallback generator summarizes relevant passages.
+
+        **Tips**
+        - Ask specific questions: “How to run Streamlit locally?” > “help”
+        - If answers look too short, raise Top-K or try keywords from the README section titles.
+        """
+
 
     # Otherwise use your H2O router
     emb     = embedder.encode([query]).astype("float32")
